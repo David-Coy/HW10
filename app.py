@@ -16,12 +16,12 @@ import pdb
 engine = create_engine("sqlite:///resources/hawaii.sqlite")
 
 # reflect an existing database into a new model
-Base = automap_base()
+Base = automap_base()# Declare a Base using `automap_base()`
 # reflect the tables
-Base.prepare(engine, reflect=True)
+Base.prepare(engine, reflect=True)# Use the Base class to reflect the database tables
 
 # Save references to each table
-Measurement = Base.classes.measurement
+Measurement = Base.classes.measurement # Assign the measurment class to a variable called `Measurement`
 Station = Base.classes.station
 
 # Create our session (link) from Python to the DB
@@ -36,7 +36,6 @@ app = Flask(__name__)
 #################################################
 # Flask Routes
 #################################################
-
 
 #last_date = session.query(Measurement.date).order_by(desc(Measurement.date)).first()[0]
 #prev_year = dt.datetime.strptime(last_date, '%Y-%m-%d') - dt.timedelta(days=365)
@@ -99,20 +98,26 @@ def tobs():
 
 
 @app.route("/api/v1.0/temp/<start>")
-@app.route("/api/v1.0/temp/<start>/<end>")
+@app.route("/api/v1.0/temp/<start>/<end>") #https://flask.palletsprojects.com/en/1.1.x/quickstart/
 def stats(start=None, end=None):
     """Return TMIN, TAVG, TMAX."""
 
     # Select statement
     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-
+    #pdb.set_trace()
     if not end:
+        # calculate TMIN, TAVG, TMAX for dates greater than start
         results = session.query(*sel).filter(Measurement.date >= start).all()
+        # Unravel results into a 1D array and convert to a list
         temps = list(np.ravel(results))
          
         return jsonify(temps=temps)
-    #pdb.set_trace()
-    results = session.query(*sel).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+
+    # calculate TMIN, TAVG, TMAX with start and stop
+    results = session.query(*sel).\
+        filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
+    # Unravel results into a 1D array and convert to a list
     temps = list(np.ravel(results))
     return jsonify(temps=temps)
 
