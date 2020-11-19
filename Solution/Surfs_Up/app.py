@@ -106,7 +106,8 @@ def stats(start=None, end=None):
             filter(Measurement.date >= start).all()
         # Unravel results into a 1D array and convert to a list
         temps = list(np.ravel(results))
-        return jsonify(temps)
+        pdb.settrace() 
+        return jsonify(temps=temps)
 
     # calculate TMIN, TAVG, TMAX with start and stop
     results = session.query(*sel).\
